@@ -1,0 +1,25 @@
+'
+' Use mikroE Timer Calculator to generate proper timer configuration
+' and timer ISR.
+'
+' https://www.mikroe.com/timer-calculator
+'
+module Click_3G_timer
+
+include Click_3G_types
+    
+sub procedure c3g_configTimer() 
+
+implements
+
+sub procedure c3g_configTimer() 
+
+end sub
+
+sub procedure Timer_interrupt() 
+
+    c3g_tick() 
+
+end sub
+
+end.

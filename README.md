@@ -1,106 +1,94 @@
 ![MikroE](http://www.mikroe.com/img/designs/beta/logo_small.png)
 
-![3G Click](http://cdn.mikroe.com/img/click/3g/3g-click.png)
-
----
-[Product Page](http://www.mikroe.com/click/3g-ea/)
-
-[Manual Page](http://docs.mikroe.com/3g_click)
-
-[Learn Page](http://learn.mikroe.com/2g-sunset-near/)
-
 ---
 
-### General Description
+# 3G Click
 
-3G click (for Europe and Australia) is a mikroBUSâ„¢ add-on board with Quectelâ€™s UG95 3G UMTS/HSPA module. The board has a rich set of components to simplify development: an SMA connector, earphone/microphone jack, MicroUSB port, as well as a SIM card slot. The UG95 module specifies data rates of up to 7.2Mbps (HSPA), and 384Kbps (UMTS). The network protocol stack includes support for TCP, UDP, PPP, MMS, FTP, SMTP, SMTPS, HTTP, HTTPS, PING, and SSL. This version operates on European frequency bands (900/2100@UMTS, 900/1800@GSM). An American version of the same board is available separately. 3G click communicates with the target MCU through the mikroBUSâ„¢ UART interface (RX, TX), with additional functionality provided by STAT, PWRKEY, RTS, R1, and CTS pins. The board is designed to use either a 3.3V or a 5V power supply. Note: Antenna sold separately.
+- **CIC Prefix**  : C3G
+- **Author**      : MikroE Team
+- **Verison**     : 1.0.0
+- **Date**        : Jan 2018.
 
 ---
 
-### Example
+### Software Support
 
-#### Configuration
-* MCU:             STM32F107VC
-* Dev.Board:       EasyMx Pro v7
-* Oscillator:      72 Mhz internal
-* Ext. Modules:    3G click
-* SW:              MikroC PRO for ARM 4.7.4
+We provide a library for the 3G Click on our [LibStock](https://libstock.mikroe.com/projects/view/1802/3g-click) 
+page, as well as a demo application (example), developed using MikroElektronika 
+[compilers](http://shop.mikroe.com/compilers). The demo can run on all the main 
+MikroElektronika [development boards](http://shop.mikroe.com/development-boards).
+
+**Library Description**
+
+Library carries generic command parser adopted for AT command based modules. 
+Generic parser 
+
+Key functions :
+
+- ``` c3g_cmdSingle ``` - Sends provided command to the module
+- ``` c3g_setHandler ``` - Handler assignation to the provied command
+- ``` c3g_modulePower ``` - Turn on module
+
+**Examples Description**
+
+Example demo application waits for the call, after call is received the parser will 
+get hangup call.
+
+This code snippet shows how generic parser should be properly initialized. 
+Before intialization module must be turned on and additionaly to that hardware 
+flow control should be also 
+
+Commands :
+- First command negotiates baud rate with module
+- Second command turns echo off 
+- Third command enables hardware flow control - necessary in case of UART polling
+- Fourth command setup default message foramt
+
+```.c
+
+// MODULE POWER ON
+    c3g_hfcEnable( true );
+    c3g_modulePower( true );
+
+// MODULE INIT
+    c3g_cmdSingle( "AT" );
+    c3g_cmdSingle( "ATE0" );
+    c3g_cmdSingle( "AT+IFC=2,2" );
+    c3g_cmdSingle( "AT+CMGF=1" );
 
 ```
-#include <stdint.h>
 
-/*      Functions
- ****************************/
-#include "3G_click_lib.h"
-#include "resources.h"
+Alongside with the demo application timer initialization functions are provided.
+Note that timer is configured acording to default develoment system and 
+MCUs, changing the system or MCU may require update of timer init and timer ISR 
+functions.
 
-// TFT module connections
-unsigned int TFT_DataPort at GPIOE_ODR;
-sbit TFT_RST at GPIOE_ODR.B8;
-sbit TFT_RS at GPIOE_ODR.B12;
-sbit TFT_CS at GPIOE_ODR.B15;
-sbit TFT_RD at GPIOE_ODR.B10;
-sbit TFT_WR at GPIOE_ODR.B11;
-sbit TFT_BLED at GPIOE_ODR.B9;
+The full application code, and ready to use projects can be found on our 
+[LibStock](https://libstock.mikroe.com/projects/view/1802/3g-click) page.
 
-sbit GSM_PWR at GPIOC_ODR.B2;
-sbit GSM_CTS at GPIOD_ODR.B13;
-sbit GSM_RTS at GPIOD_IDR.B10;
+Other mikroE Libraries used in the example:
 
-bool answer_call = false;
-bool hangup_call = false;
+- String
+- Conversion
 
-void system_init( void );
-void system_init( void )
-{
-    GPIO_Digital_Output( &GPIOC_ODR, _GPIO_PINMASK_2 );
-    GPIO_Digital_Output( &GPIOD_ODR, _GPIO_PINMASK_13 );
-    GPIO_Digital_Input( &GPIOD_IDR, _GPIO_PINMASK_10 );
-    Delay_ms( 100 );
+**Additional notes and informations**
 
-    // UART bus for monitoring
-    UART1_Init( 57600 );
-    Delay_ms( 200 );
+Depending on the development board you are using, you may need 
+[USB UART click](http://shop.mikroe.com/usb-uart-click), 
+[USB UART 2 Click](http://shop.mikroe.com/usb-uart-2-click) or 
+[RS232 Click](http://shop.mikroe.com/rs232-click) to connect to your PC, for 
+development systems with no UART to USB interface available on the board. The 
+terminal available in all Mikroelektronika 
+[compilers](http://shop.mikroe.com/compilers), or any other terminal application 
+of your choice, can be used to read the message.
 
-    /// UART bus for GSM
-    UART3_Init_Advanced( 9600, _UART_8_BIT_DATA,
-                               _UART_NOPARITY,
-                               _UART_ONE_STOPBIT,
-                               &_GPIO_MODULE_USART3_PD89 );
-    Delay_ms( 200 );
+---
 
-    RXNEIE_USART3_CR1_bit = 1;
-    NVIC_IntEnable( IVT_INT_USART3 );
-    EnableInterrupts();
-}
+| **Supported** | STM | KIN | CEC | MSP | TI  | PIC | P32 | DSP | AVR | FT90x |
+|--------------:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:-----:|
+| **mikroC**    |  x  |  x  |     |     |  x  |  x  |  x  |  x  |  x  |   x   |
+| **mikroB**    |  x  |  x  |     |     |  x  |  x  |  x  |  x  |  x  |   x   |
+| **mikroP**    |  x  |  x  |     |     |  x  |  x  |  x  |  x  |  x  |   x   |
 
-void main()
-{
-    system_init();
-    display_init(); 
-    click_3g_api_init();
-
-    while( 1 )
-    {
-        click_3g_process();
-
-        if( Button( &GPIOC_IDR, 9, 80, 1 ) )
-            answer_call = true;
-
-        if( Button( &GPIOC_IDR, 8, 80, 1 ) )
-            hangup_call = true;
-
-        if( answer_call )
-        {
-            click_3g_call_answer();
-            answer_call = false;
-        }
-
-        if( hangup_call )
-        {
-            click_3g_call_hangup();
-            hangup_call = false;
-        }
-    }
-}
-```
+---
+---
